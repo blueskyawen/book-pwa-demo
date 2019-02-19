@@ -68,7 +68,7 @@
             document.querySelector('#js-loading').style = 'display: none';
         }
     }
-    
+
     /**
      * 根据用户输入结果
      * 使用XMLHttpRequest查询并展示数据列表
@@ -126,4 +126,17 @@
             queryBook();
         }
     });
+
+    /* ========================== */
+    /* service worker相关部分 */
+    /* ========================== */
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').then(function () {
+            console.log('Service Worker 注册成功');
+        });
+    }
+
+
+
+
 })();
