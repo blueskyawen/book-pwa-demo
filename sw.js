@@ -1,8 +1,7 @@
 /**
  * Created by root on 2/19/19.
  */
-var cacheName = 'book-pwa-0-0';
-var apiCacheName = 'api-0-1-1';
+var cacheName = 'book-pwa-0-1';
 var cacheFiles = [
     '/',
     './index.html',
@@ -73,12 +72,18 @@ self.addEventListener('activate', function (event) {
     return self.clients.claim();
 });
 
-self.addEventListener('push', function (e) {
-    var data = e.data;
-    if (e.data) {
+self.addEventListener('push', function (event) {
+    var data = event.data;
+    console.log('Service Worker 状态： push');
+    const options = {
+        body: 'Pwa push service works.',
+        icon: 'img/icons/book-72.png',
+        badge: 'img/icons/book-32.png'
+    };
+    if (event.data) {
         data = data.json();
         console.log('push的数据为：', data);
-        self.registration.showNotification(data.text);
+        event.waitUntil(self.registration.showNotification(data,options));
     }
     else {
         console.log('push没有任何数据');

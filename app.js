@@ -54,8 +54,8 @@ router.post('/subscription', koaBody(), async ctx => {
  * @param {*} data
  */
 function pushMessage(subscription, data1) {
-    webpush.sendNotification(subscription, data1, options).then(data => {
-        console.log('push service的相应数据:', JSON.stringify(data1));
+    webpush.sendNotification(subscription, data1).then(data => {
+        console.log('push service的相应数据:', JSON.stringify(data));
         return;
     }).catch(err => {
         // 判断状态码，440和410表示失效
