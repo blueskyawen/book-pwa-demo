@@ -228,7 +228,7 @@
     /* service worker相关部分 */
     /* ========================== */
     if ('serviceWorker' in navigator && 'PushManager' in window) {
-        var publicKey = 'BOEQSjdhorIf8M0XFNlwohK3sTzO9iJwvbYU-fuXRF0tvRpPPMGO6d_gJC_pUQwBT7wD8rKutpNTFHOHN3VqJ0A';
+        var publicKey = 'BFDCYXeRB5ADrV0Vic3pjta30C7l9KEmW3ACmFVX7OorpliWh3-BZvgzwar69oNKngz8O_BYThLc4QGsdujrKjE';
         navigator.serviceWorker.register('./sw.js').then(function (registration) {
             console.log('Service Worker 注册成功,',registration.scope);
 
@@ -242,9 +242,9 @@
             // 将生成的客户端订阅信息存储在自己的服务器上
             return sendSubscriptionToServer(JSON.stringify(body));
         }).then(function(res) {
-            console.log('res:',res);
+            console.log('res:',JSON.stringify(res));
         }).catch(function(err) {
-            console.log('err:',err);
+            console.log('err:',JSON.stringify(err));
         });
     }
 
