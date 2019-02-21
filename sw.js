@@ -77,8 +77,7 @@ self.addEventListener('push', function (event) {
     console.log('Service Worker 状态： push');
     const options = {
         body: 'Pwa push service works.',
-        icon: 'img/icons/book-72.png',
-        badge: 'img/icons/book-32.png'
+        icon: 'img/icons/book-72.png'
     };
     if (event.data) {
         data = data.json();
@@ -88,4 +87,19 @@ self.addEventListener('push', function (event) {
     else {
         console.log('push没有任何数据');
     }
+});
+
+self.addEventListener('notificationclick', function (e) {
+    e.waitUntil(
+        // 获取所有clients
+        self.clients.matchAll().then(function (clients) {
+            if (!clients || clients.length === 0) {
+                return;
+            }
+            clients.forEach(function (client) {
+                // 使用postMessage进行通信
+                client.postMessage(action);
+            });
+        })
+    );
 });
