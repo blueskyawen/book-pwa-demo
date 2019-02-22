@@ -252,10 +252,13 @@
                     location.href = 'https://book.douban.com/subject/20515024/';
                     break;
                 case 'contact-me':
-                    location.href = 'mailto:someone@sample.com';
+                    location.href = 'mailto:bluesky.liu@163.com';
                     break;
                 default:
                     document.querySelector('.panel').classList.add('show');
+                    setTimeout(function () {
+                        document.querySelector('.panel').classList.remove('show');
+                    },3000);
                     break;
             }
         });
@@ -306,6 +309,43 @@
             console.log('res:',JSON.stringify(res));
         }).catch(function(err) {
             console.log('err:',JSON.stringify(err));
+        });
+    }
+
+    /* ========================================== */
+    /*   service worker background sync 相关部分   */
+    /* ========================================== */
+    var STORE_NAME = 'SyncData';
+    if ('serviceWorker' in navigator && 'SyncManager' in window) {
+        // 一个background sync的基础版
+        navigator.serviceWorker.ready.then(function (registration) {
+            var tag = 'sample_sync';
+
+            document.getElementById('js-sync-btn').addEventListener('click', function () {
+                registration.sync.register(tag).then(function () {
+                    console.log('后台同步已触发', tag);
+                }).catch(function (err) {
+                    console.log('后台同步触发失败', err);
+                });
+            });
+        });
+
+        // 使用postMessage来传输sync数据
+        navigator.serviceWorker.ready.then(function (registration) {
+            var tag = 'sample_sync_event';
+
+            document.getElementById('js-sync-event-btn').addEventListener('click', function () {
+                registration.sync.register(tag).then(function () {
+                    console.log('后台同步已触发', tag);
+
+                    // 使用postMessage进行数据通信
+                    var inputValue = document.querySelector('#js-search-input').value;
+                    var msg = JSON.stringify({type: 'bgsync', msg: {name: inputValue}});
+                    navigator.serviceWorker.controller.postMessage(msg);
+                }).catch(function (err) {
+                    console.log('后台同步触发失败', err);
+                });
+            });
         });
     }
 

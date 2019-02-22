@@ -90,16 +90,96 @@ self.addEventListener('push', function (event) {
 });
 
 self.addEventListener('notificationclick', function (e) {
+    var action = e.action;
+    console.log(`action tag: ${e.notification.tag}`, `action: ${action}`);
+
+    switch (action) {
+        case 'show-book':
+            console.log('show-book');
+            break;
+        case 'contact-me':
+            console.log('contact-me');
+            break;
+        default:
+            console.log(`未处理的action: ${e.action}`);
+            action = 'default';
+            break;
+    }
+    e.notification.close();
+
     e.waitUntil(
         // 获取所有clients
         self.clients.matchAll().then(function (clients) {
             if (!clients || clients.length === 0) {
+                self.clients.openWindow && self.clients.openWindow('http://127.0.0.1:8085');
                 return;
             }
+            clients[0].focus && clients[0].focus();
             clients.forEach(function (client) {
                 // 使用postMessage进行通信
                 client.postMessage(action);
             });
         })
     );
+});
+
+
+/* =========================== */
+/* background sync demo相关部分 */
+/* =========================== */
+class SimpleEvent {
+    constructor() {
+        this.listenrs = {};
+    }
+
+    once(tag, cb) {
+        this.listenrs[tag] || (this.listenrs[tag] = []);
+        this.listenrs[tag].push(cb);
+    }
+
+    trigger(tag, data) {
+        this.listenrs[tag] = this.listenrs[tag] || [];
+        let listenr;
+        while (listenr = this.listenrs[tag].shift()) {
+            listenr(data)
+        }
+    }
+}
+
+const simpleEvent = new SimpleEvent();
+self.addEventListener('sync', function (e) {
+    console.log(`service worker需要进行后台同步，tag: ${e.tag}`);
+    var init = {
+        method: 'GET'
+    };
+    if (e.tag === 'sample_sync') {
+        var request = new Request(`sync?name=AlienZHOU`, init);
+        e.waitUntil(
+            fetch(request).then(function (response) {
+                response.json().then(console.log.bind(console));
+                return response;
+            })
+        );
+    }    // sample_sync_event同步事件，使用postMessage来进行数据通信
+    else if (e.tag === 'sample_sync_event') {
+        let msgPromise = new Promise(function (resolve, reject) {
+            // 监听message事件中触发的事件通知
+            simpleEvent.once('bgsync', function (data) {
+                resolve(data);
+            });
+            // 五秒超时
+            setTimeout(resolve, 5000);
+        });
+
+        e.waitUntil(
+            msgPromise.then(function (data) {
+                var name = data && data.name ? data.name : 'anonymous';
+                var request = new Request(`sync?name=${name}`, init);
+                return fetch(request)
+            }).then(function (response) {
+                response.json().then(console.log.bind(console));
+                return response;
+            })
+        );
+    }
 });
